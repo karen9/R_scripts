@@ -1,0 +1,71 @@
+library(ggplot2)
+library(gridExtra)
+library(grid)
+library(ggcorrplot)
+library(car)
+
+## Graficados con GGPLOT
+
+## Datos IRIS
+
+data("iris")
+
+str(iris)
+
+## boxplot with a small correlation Sepal.Length~Petal.Length
+
+
+ggplot()+ 
+  geom_jitter(aes(x=iris$Species,
+                  y=iris$Petal.Length), 
+                  color="gray")+
+  geom_boxplot(aes(x=iris$Species,
+                   y=iris$Petal.Length, 
+                   color=iris$Species), fill=alpha("white",0.5))+
+  xlab("Species")+ylab("Sepal Length")
+
+##################
+
+aov1 <- aov(iris$Petal.Length~iris$Species)
+summary(aov1) #P<0.5!!
+
+##################
+# Tukey Honest Significant Differences
+
+TukeyHSD(aov1)
+#All three ... p<0.05!!
+
+##################
+#Pairewise t-test
+
+pairwise.t.test(iris$Petal.Length, iris$Species, p.adjust.method = "BH")
+
+##################
+# ANOVA Assumptions
+# Homogeinity
+plot(aov1, 1)
+
+
+##################
+# Levene's Test
+
+leveneTest(iris$Petal.Length ~ iris$Species)
+
+##################
+# ANOVA no assumptions equal variance
+
+oneway.test(iris$Petal.Length ~ iris$Species)
+
+pairwise.t.test(iris$Petal.Length, iris$Species, p.adjust.method = "BH", pool.sd = F)
+
+##################
+# Normality Assumptions
+
+plot(aov1, 2)
+aov_residuals <- residuals(object = aov1 )
+shapiro.test(x = aov_residuals )
+
+##################
+# Non-parametric ANOVA
+
+kruskal.test(iris$Sepal.Length ~ iris$Species)
